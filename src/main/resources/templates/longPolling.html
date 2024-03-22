@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Long Polling</title>
+</head>
+<body>
+<h2 id="outcome"></h2>
+<button onclick="pollData()">start</button>
+
+<script>
+
+    function pollData() {
+        const timestamp = Date.now();
+
+        const date = new Date(timestamp);
+        const formattedDate = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+
+        let outcome = document.querySelector("#outcome");
+        outcome.innerHTML += formattedDate + " Client : 你有更新嗎？" + "</br>";
+
+        fetch('/longPolling')
+            .then(response => {
+                console.log(response)
+                return response.json()
+            })
+            .then(data => {
+                outcome.innerHTML += data["data"] + "</br>";
+
+                // 收到 response 後馬上再 fetch 一次
+                pollData();
+
+            })
+            .catch(error => {
+                console.error('Error during long polling:', error);
+            })
+    }
+</script>
+
+</body>
+</html>
